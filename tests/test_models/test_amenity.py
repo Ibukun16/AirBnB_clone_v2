@@ -17,13 +17,13 @@ class test_Amenity(test_basemodel):
     """ """
 
     def __init__(self, *args, **kwargs):
-        """ """
+        """initializes the test class """
         super().__init__(*args, **kwargs)
         self.name = "Amenity"
         self.value = Amenity
 
     def test_name2(self):
-        """ """
+        """testing name type """
         new = self.value()
         self.assertEqual(type(new.name), str)
 

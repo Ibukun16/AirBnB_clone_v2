@@ -2,6 +2,10 @@
 """ Console Module """
 import cmd
 import sys
+import re
+import os
+import uuid
+from datetime import datetime
 from models.base_model import BaseModel
 from models.__init__ import storage
 from models.user import User
@@ -94,7 +98,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_quit(self, command):
         """ Method to exit the HBNB console"""
-        exit()
+        exit(0)
 
     def help_quit(self):
         """ Prints the help documentation for quit  """
@@ -103,7 +107,7 @@ class HBNBCommand(cmd.Cmd):
     def do_EOF(self, arg):
         """ Handles EOF to exit program """
         print()
-        exit()
+        exit(0)
 
     def help_EOF(self):
         """ Prints the help documentation for EOF """
@@ -115,16 +119,57 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        if not args:
+        attributes_ign = ('id', 'created_at', 'updated_at', '__class__')
+        name_cls = ''
+        mod = r'(?P<name>(?:[a-zA-Z]|_)(?:[a-zA-Z]|\d|_)*)'
+        match_up = re.match(pattern, args)
+        item_kw = {}
+        if match_up is not None:
+            name_cls = match_up.group("name")
+            parameters = args[len(name_cls):].strip().split(' ')
+            str_cor = r'(?P<t_str>"([^"]|\")'
+            float_cor = r'(?P<t_float>[-+]?\d+\.\d+)'
+            int_cor = r'(?P<t_int>[-+]?\d+)'
+            fmt_para = '{}=({}|{}|{})'.format(mod, str_cor, float_cor,
+                                              int_cor)
+            for p in parameters:
+                paired = re.fullmatch(fmt_para, p)
+                if paired is not None:
+                    name_key = paired.group("name")
+                    var_str = paired.group('t_str')
+                    var_float = paired.group('t_float')
+                    var_int = paired.group('t_int')
+                    if var_float is not None:
+                        item_kw[name_key] = float(var_float)
+                    if var_int is not None:
+                        item_kw[name_key] = int(var_int)
+                   if var_str is not None:
+                       item_kw[name_key] = var_str[1:-1].replace('_', ' ')
+        else:
+            name_cls = args
+        if not name_cls:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+        elif class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
+        if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+            if not hasattr(item_kw, 'id'):
+                item_kw['id'] = str(uuid.uuid4())
+            if not hasattr(item_kw, 'created_at'):
+                item_kw['created_at'] = str(datetime.now())
+            if not hasattr(item_kw, 'updated_at'):
+                itemjkw['updated_at'] = str(datetime.now())
+        new_instance = HBNBCommand.classes[name_cls](**item_kw)
+        new_instance.save()
         print(new_instance.id)
-        storage.save()
+    else:
+        new_instance = HBNBCommand.classes[name_cls]()
+        for key, val in item_kw.items():
+            if key not in attributes_ign:
+                setattr(new_instance, key, val)
+        new_instance.save()
+        print(new_instance.id)
 
     def help_create(self):
         """ Help information for the create method """
@@ -206,14 +251,22 @@ class HBNBCommand(cmd.Cmd):
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
-            for k, v in storage._FileStorage__objects.items():
-                if k.split('.')[0] == args:
-                    print_list.append(str(v))
+            for key, val in storage.all().items():
+                if key.split('.')[0] is args:
+                    print_list.append(str(val))
         else:
-            for k, v in storage._FileStorage__objects.items():
-                print_list.append(str(v))
+            for key, val in storage.all().items():
+                print_list.append(str(val))
 
         print(print_list)
+
+    def help_EOF(self):
+        """ Prints the help documentation for EOF """
+        print("Exits the program without formatting\n")
+
+    def emptyline(self):
+        """ Overrides the emptyline method of CMD """
+        pass
 
     def help_all(self):
         """ Help information for the all command """
@@ -223,8 +276,8 @@ class HBNBCommand(cmd.Cmd):
     def do_count(self, args):
         """Count current number of class instances"""
         count = 0
-        for k, v in storage._FileStorage__objects.items():
-            if args == k.split('.')[0]:
+        for key, value in storage.all().items():
+            if args == key.split('.')[0]:
                 count += 1
         print(count)
 
@@ -267,12 +320,12 @@ class HBNBCommand(cmd.Cmd):
         if '{' in args[2] and '}' in args[2] and type(eval(args[2])) is dict:
             kwargs = eval(args[2])
             args = []  # reformat kwargs into list, ex: [<name>, <value>, ...]
-            for k, v in kwargs.items():
-                args.append(k)
-                args.append(v)
+            for key, value in kwargs.items():
+                args.append(key)
+                args.append(value)
         else:  # isolate args
             args = args[2]
-            if args and args[0] is '\"':  # check for quoted arg
+            if args and args[0] == '\"':  # check for quoted arg
                 second_quote = args.find('\"', 1)
                 att_name = args[1:second_quote]
                 args = args[second_quote + 1:]
@@ -280,10 +333,10 @@ class HBNBCommand(cmd.Cmd):
             args = args.partition(' ')
 
             # if att_name was not quoted arg
-            if not att_name and args[0] is not ' ':
+            if not att_name and args[0] != ' ':
                 att_name = args[0]
             # check for quoted val arg
-            if args[2] and args[2][0] is '\"':
+            if args[2] and args[2][0] == '\"':
                 att_val = args[2][1:args[2].find('\"', 1)]
 
             # if att_val was not quoted arg
@@ -319,6 +372,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
