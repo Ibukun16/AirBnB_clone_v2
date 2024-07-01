@@ -8,13 +8,21 @@ class FileStorage:
     __file_path = 'file.json'
     __objects = {}
 
-    def all(self):
+    def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
-        return FileStorage.__objects
+        if not cls:
+            return FileStorage.__objects
+        elif type(cls) == str:
+            return {key: val for key, val in self.__objects.items()
+                    if val.__class__.__name__ == cls}
+        else:
+            return {key: val for key, val in self.__objects.items()
+                    if val.__class__ == cls}
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
-        self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
+        if obj is not None:
+            self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
 
     def save(self):
         """Saves storage dictionary to file"""
@@ -48,3 +56,32 @@ class FileStorage:
                         self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
+
+    def  delete(self, obj=None):
+        """Deleting object from __objects if it is inside"""
+        if obj is not None:
+            del self.objects[obj.__class__.__name__ + '.' + obj.id]
+            FileStorage.save()
+
+    def close(self):
+        """Deserialize JSON file to objects"""
+        self.reload()
+
+    def get(self, cls, id):
+        """Retrieve an object"""
+        if cls is not None and type(cls) is str and id is not None and\ 
+        type (id) is str and cls in classes:
+            key = cls + '.' + id
+            obj = self.__objects.get(key, None)
+            return obj
+        else:
+            return None
+
+    def count(self, cls=None):
+        """Count number of objects in storage"""
+        summation = 0
+        if type(cls) == str and cls in classes:
+            summation = len(self.all(cls))
+        elif cls is None:
+            summation = len(self.__objects)
+        return summation
