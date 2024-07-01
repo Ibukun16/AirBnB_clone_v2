@@ -25,7 +25,7 @@ class State(BaseModel, Base):
     if getenv('HBNB_TYPE_STORAGE') != 'db':
         @property
         def cities(self):
-            """Getter function that obtains attribute that returns 
+            """Getter function that obtains attribute that returns
             the instance City"""
             city_val = models.storage.all("City").values()
             city = []

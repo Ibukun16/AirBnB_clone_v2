@@ -20,10 +20,9 @@ class test_basemodel(unittest.TestCase):
         self.name = 'BaseModel'
         self.value = BaseModel
 
- """A class to test pep8 on base_model file"""
     def test_pycodestyle(self):
         """
-        Test pep8 format
+        A class to test  pep8 format on base_model file
         """
         pycostyle = pycodestyle.StyleGuide(quiet=True)
         result = pycostyle.check_files(['models/base_model.py'])
@@ -37,7 +36,7 @@ class test_basemodel(unittest.TestCase):
     def tearDown(self):
         try:
             os.remove('file.json')
-        except:
+        except Exception:
             pass
 
     def test_default(self):
@@ -111,7 +110,7 @@ class test_basemodel(unittest.TestCase):
         new = BaseModel(**n)
         self.assertFalse(new.created_at == new.updated_at)
 
-     def test_uuid(self):
+    def test_uuid(self):
         """
         Testin UUID
         """

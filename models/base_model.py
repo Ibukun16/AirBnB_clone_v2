@@ -9,6 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 tym_fmt = "%Y-%m-%dT%H:%M:%S.%f"
 
+
 if getenv('HBNB_TYPE_STORAGE') == 'db':
     Base = declarative_base()
 else:
@@ -41,10 +42,12 @@ class BaseModel:
                 if "id" not in kwargs:
                     self.id = str(uuid.uuid4())
                 if type(self.created_at) is str:
-                    self.created_at = datetime.strptime(self.created_at, tym_fmt)
+                    self.created_at = datetime.strptime(self.created_at,
+                                                        tym_fmt)
                 if type(self.updated_at) is str:
-                    self.updated_at = datetime.strptime(self.updated_at, tym_fmt)
-i
+                    self.updated_at = datetime.strptime(self.updated_at,
+                                                        tym_fmt)
+
     def __str__(self):
         """Returns a string representation of the instance"""
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
@@ -70,7 +73,7 @@ i
         if '_sa_instance_state' in dictionary.keys():
             del dictionary['_sa_instance_state']
         return dictionary
-    
+
     def delete(self):
         """Delete current instance from storage by calling its delete method"""
         models.storage.delete(self)

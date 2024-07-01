@@ -8,6 +8,7 @@ from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 from models.place import place_amenity
 
+
 class Amenity(BaseModel, Base):
     """Representing Amenity class"""
     if getenv('HBNB_TYPE_STORAGE') == 'db':
@@ -15,7 +16,7 @@ class Amenity(BaseModel, Base):
         name = Column(String(128), nullable=False)
         place_amenities = relationship("Place", secondary=place_amenity)
     else:
-    name = ""
+        name = ""
 
     def __init__(self, *args, **kwargs):
         """Initializing Amenity"""
