@@ -77,7 +77,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is '}'\
+                    if pline[0] == '{' and pline[-1] == '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -98,7 +98,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_quit(self, command):
         """ Method to exit the HBNB console"""
-        exit(0)
+        exit()
 
     def help_quit(self):
         """ Prints the help documentation for quit  """
@@ -107,7 +107,7 @@ class HBNBCommand(cmd.Cmd):
     def do_EOF(self, arg):
         """ Handles EOF to exit program """
         print()
-        exit(0)
+        exit()
 
     def help_EOF(self):
         """ Prints the help documentation for EOF """
@@ -252,21 +252,13 @@ class HBNBCommand(cmd.Cmd):
                 print("** class doesn't exist **")
                 return
             for key, val in storage.all().items():
-                if key.split('.')[0] is args:
+                if key.split('.')[0] == args:
                     print_list.append(str(val))
         else:
             for key, val in storage.all().items():
                 print_list.append(str(val))
 
         print(print_list)
-
-    def help_EOF(self):
-        """ Prints the help documentation for EOF """
-        print("Exits the program without formatting\n")
-
-    def emptyline(self):
-        """ Overrides the emptyline method of CMD """
-        pass
 
     def help_all(self):
         """ Help information for the all command """
