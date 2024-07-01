@@ -77,7 +77,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
+                    if pline[0] is '{' and pline[-1] is '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -143,8 +143,8 @@ class HBNBCommand(cmd.Cmd):
                         item_kw[name_key] = float(var_float)
                     if var_int is not None:
                         item_kw[name_key] = int(var_int)
-                   if var_str is not None:
-                       item_kw[name_key] = var_str[1:-1].replace('_', ' ')
+                    if var_str is not None:
+                        item_kw[name_key] = var_str[1:-1].replace('_', ' ')
         else:
             name_cls = args
         if not name_cls:
