@@ -98,7 +98,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_quit(self, command):
         """ Method to exit the HBNB console"""
-        exit()
+        exit(0)
 
     def help_quit(self):
         """ Prints the help documentation for quit  """
@@ -107,7 +107,7 @@ class HBNBCommand(cmd.Cmd):
     def do_EOF(self, arg):
         """ Handles EOF to exit program """
         print()
-        exit()
+        exit(0)
 
     def help_EOF(self):
         """ Prints the help documentation for EOF """
@@ -121,24 +121,25 @@ class HBNBCommand(cmd.Cmd):
         """ Create an object of any class"""
         attributes_ign = ('id', 'created_at', 'updated_at', '__class__')
         name_cls = ''
-        mod = r'(?P<name>(?:[a-zA-Z]|_)(?:[a-zA-Z]|\d|_)*)'
-        match_up = re.match(pattern, args)
+        char = r'(?P<name>(?:[a-zA-Z]|_)(?:[a-zA-Z]|\d|_)*)'
+        match_up = re.match(char, args)
         item_kw = {}
         if match_up is not None:
             name_cls = match_up.group("name")
-            parameters = args[len(name_cls):].strip().split(' ')
-            str_cor = r'(?P<t_str>"([^"]|\")'
+            stripped = args[len(name_cls):].strip()
+            parameters = stripped.split(' ')
+            str_cor = r'(?P<t_str>"([^"]|\")*")'
             float_cor = r'(?P<t_float>[-+]?\d+\.\d+)'
             int_cor = r'(?P<t_int>[-+]?\d+)'
-            fmt_para = '{}=({}|{}|{})'.format(mod, str_cor, float_cor,
+            fmt_para = '{}=({}|{}|{})'.format(char, str_cor, float_cor,
                                               int_cor)
-            for p in parameters:
-                paired = re.fullmatch(fmt_para, p)
-                if paired is not None:
-                    name_key = paired.group("name")
-                    var_str = paired.group('t_str')
-                    var_float = paired.group('t_float')
-                    var_int = paired.group('t_int')
+            for mem in parameters:
+                mem_link = re.fullmatch(fmt_para, mem)
+                if mem_link is not None:
+                    name_key = mem_link.group("name")
+                    var_str = mem_link.group('t_str')
+                    var_float = mem_link.group('t_float')
+                    var_int = mem_link.group('t_int')
                     if var_float is not None:
                         item_kw[name_key] = float(var_float)
                     if var_int is not None:
@@ -150,7 +151,7 @@ class HBNBCommand(cmd.Cmd):
         if not name_cls:
             print("** class name missing **")
             return
-        elif class_name not in HBNBCommand.classes:
+        elif name_cls not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
         if os.getenv('HBNB_TYPE_STORAGE') == 'db':
@@ -159,17 +160,17 @@ class HBNBCommand(cmd.Cmd):
             if not hasattr(item_kw, 'created_at'):
                 item_kw['created_at'] = str(datetime.now())
             if not hasattr(item_kw, 'updated_at'):
-                itemjkw['updated_at'] = str(datetime.now())
-        new_instance = HBNBCommand.classes[name_cls](**item_kw)
-        new_instance.save()
-        print(new_instance.id)
-    else:
-        new_instance = HBNBCommand.classes[name_cls]()
-        for key, val in item_kw.items():
-            if key not in attributes_ign:
-                setattr(new_instance, key, val)
-        new_instance.save()
-        print(new_instance.id)
+                item_kw['updated_at'] = str(datetime.now())
+            new_instance = HBNBCommand.classes[name_cls](**item_kw)
+            new_instance.save()
+            print(new_instance.id)
+        else:
+            new_instance = HBNBCommand.classes[name_cls]()
+            for key, val in item_kw.items():
+                if key not in attributes_ign:
+                    setattr(new_instance, key, val)
+            new_instance.save()
+            print(new_instance.id)
 
     def help_create(self):
         """ Help information for the create method """
@@ -364,7 +365,6 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
-
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()

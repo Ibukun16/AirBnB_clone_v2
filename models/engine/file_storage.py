@@ -44,7 +44,7 @@ class FileStorage:
             json.dump(temp, f)
 
     def reload(self):
-        """Loads storage dictionary from file"""}
+        """Loads storage dictionary from file"""
         try:
             temp = {}
             with open(FileStorage.__file_path, 'r') as f:
@@ -66,11 +66,11 @@ class FileStorage:
 
     def get(self, cls, id):
         """Retrieve an object"""
-        if cls is not None and type(cls) is str and id is not None and\ 
-        type (id) is str and cls in classes:
-            key = cls + '.' + id
-            obj = self.__objects.get(key, None)
-            return obj
+        if cls is not None and type(cls) is str and id is not None\
+                and type (id) is str and cls in classes:
+                    key = cls + '.' + id
+                    obj = self.__objects.get(key, None)
+                    return obj
         else:
             return None
 

@@ -13,10 +13,8 @@ class State(BaseModel, Base):
     if getenv('HBNB_TYPE_STORAGE') == 'db':
         __tablename__ = 'states'
     name = Column(String(128), nullable=False)
-    cities = relationship("City", cascade="all, delete,
-                          delete-orphan", backref="state")
-    else:
-        name = ""
+    cities = relationship("City", backref="state",
+                          cascade="all, delete, delete-orphan")
 
     def __init__(self, *args, **kwargs):
         """initializing the state"""

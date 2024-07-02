@@ -17,13 +17,6 @@ class test_fileStorage(unittest.TestCase):
         for key in del_list:
             del storage._FileStorage__objects[key]
 
-    def tearDown(self):
-        """ Remove storage file at end of tests """
-        try:
-            os.remove('file.json')
-        except:
-            pass
-
     def test_obj_list_empty(self):
         """ __objects is initially empty """
         self.assertEqual(len(storage.all()), 0)
@@ -122,7 +115,7 @@ class TestFileStorage(unittest.TestCase):
         cls.storage = FileStorage()
 
     @classmethod
-    def teardown(cls):
+    def delete(cls):
         """This will tear down the model class at the end of the test"""
         del cls.user
 
@@ -130,7 +123,7 @@ class TestFileStorage(unittest.TestCase):
         """teardown"""
         try:
             os.remove("file.json")
-        except Exception:
+        except FileNotFoundError:
             pass
 
     def test_pep8_FileStorage(self):
@@ -169,7 +162,7 @@ class TestFileStorage(unittest.TestCase):
             lines = f.readlines()
         try:
             os.remove(path)
-        except:
+        except FileNotFoundError:
             pass
         self.storage.save()
         with open(path, 'r') as f:
@@ -177,7 +170,7 @@ class TestFileStorage(unittest.TestCase):
         self.assertEqual(lines, lines2)
         try:
             os.remove(path)
-        except:
+        except FileNotFoundError:
             pass
         with open(path, "w") as f:
             f.write("{}")
