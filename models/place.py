@@ -4,7 +4,7 @@ import models
 import sqlalchemy
 from models.base_model import BaseModel, Base
 from os import getenv
-from sqlalchemy import Column, Float, ForeignKey, Integer, String, Table 
+from sqlalchemy import Column, Float, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import relationship
 
 
@@ -37,7 +37,7 @@ class Place(BaseModel, Base):
         amenities = relationship("Amenity", secondary="place_amenity",
                                  viewonly=False,
                                  back_populates="place_amenities")
-    
+
     if getenv("HBNB_TYPE_STORAGE") != "db":
         @property
         def reviews(self):

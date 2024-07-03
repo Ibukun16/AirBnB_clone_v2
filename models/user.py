@@ -32,7 +32,6 @@ class User(BaseModel, Base):
         first_name = ""
         last_name = ""
 
-
     @property
     def password(self):
         return self.password
