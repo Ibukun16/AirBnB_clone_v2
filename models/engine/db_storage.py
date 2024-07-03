@@ -73,14 +73,14 @@ class DBStorage:
 
     def reload(self):
         """Reload objects from the database"""
-        session_kp = sessionmaker(bind=self.__engine,
-                                  expire_on_commit=False)
         Base.metadata.create_all(self.__engine)
-        self.__session = scoped_session(session_kp)
+        maker = sessionmaker(bind=self.__engine,
+                             expire_on_commit=False)
+        self.__session = scoped_session(maker)
 
     def new(self, obj):
         """Creating a new object"""
-        self.session.add(obj)
+        self.__session.add(obj)
 
     def save(self):
         """saving the current session"""
