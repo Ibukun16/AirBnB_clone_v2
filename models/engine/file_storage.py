@@ -50,15 +50,15 @@ class FileStorage:
             with open(FileStorage.__file_path, 'r') as f:
                 temp = json.load(f)
                 for key, val in temp.items():
-                        self.all()[key] = classes[val['__class__']](**val)
+                    self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
 
-    def  delete(self, obj=None):
+    def delete(self, obj=None):
         """Deleting object from __objects if it is inside"""
         if obj is not None:
-            del self.__objects["{}.{}".format(type(obj).__name__, obj.id]
-            FileStorage.save()
+            del self.__objects[(obj).__class__.__name__ + '.' + obj.id]
+            self.save()
 
     def close(self):
         """Deserialize JSON file to objects"""
@@ -67,10 +67,10 @@ class FileStorage:
     def get(self, cls, id):
         """Retrieve an object"""
         if cls is not None and type(cls) is str and id is not None\
-                and type (id) is str and cls in classes:
-                    key = cls + '.' + id
-                    obj = self.__objects.get(key, None)
-                    return obj
+                and type(id) is str and cls in classes:
+            key = cls + '.' + id
+            obj = self.__objects.get(key, None)
+            return obj
         else:
             return None
 

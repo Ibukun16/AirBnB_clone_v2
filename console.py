@@ -123,7 +123,7 @@ class HBNBCommand(cmd.Cmd):
         name_cls = ''
         char = r'(?P<name>(?:[a-zA-Z]|_)(?:[a-zA-Z]|\d|_)*)'
         match_up = re.match(char, args)
-        item_kw = {}
+        args_kw = {}
         if match_up is not None:
             name_cls = match_up.group("name")
             stripped = args[len(name_cls):].strip()
@@ -141,11 +141,11 @@ class HBNBCommand(cmd.Cmd):
                     var_float = mem_link.group('t_float')
                     var_int = mem_link.group('t_int')
                     if var_float is not None:
-                        item_kw[name_key] = float(var_float)
+                        args_kw[name_key] = float(var_float)
                     if var_int is not None:
-                        item_kw[name_key] = int(var_int)
+                        args_kw[name_key] = int(var_int)
                     if var_str is not None:
-                        item_kw[name_key] = var_str[1:-1].replace('_', ' ')
+                        args_kw[name_key] = var_str[1:-1].replace('_', ' ')
         else:
             name_cls = args
         if not name_cls:
@@ -155,18 +155,18 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
         if os.getenv('HBNB_TYPE_STORAGE') == 'db':
-            if not hasattr(item_kw, 'id'):
-                item_kw['id'] = str(uuid.uuid4())
+            if not hasattr(args_kw, 'id'):
+                args_kw['id'] = str(uuid.uuid4())
             if not hasattr(item_kw, 'created_at'):
-                item_kw['created_at'] = str(datetime.now())
+                args_kw['created_at'] = str(datetime.now())
             if not hasattr(item_kw, 'updated_at'):
-                item_kw['updated_at'] = str(datetime.now())
-            new_instance = HBNBCommand.classes[name_cls](**item_kw)
+                args_kw['updated_at'] = str(datetime.now())
+            new_instance = HBNBCommand.classes[name_cls](**args_kw)
             new_instance.save()
             print(new_instance.id)
         else:
             new_instance = HBNBCommand.classes[name_cls]()
-            for key, val in item_kw.items():
+            for key, val in args_kw.items():
                 if key not in attributes_ign:
                     setattr(new_instance, key, val)
             new_instance.save()
@@ -365,6 +365,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()

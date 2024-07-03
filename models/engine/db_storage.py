@@ -1,11 +1,11 @@
 #!/usr/bin/python3
 """
-Database storage engine using SQLAlchemy with a mysql+mysqldb database connection.
+Database storage engine using SQLAlchemy with a mysql+mysqldb
+database connection.
 """
-
-
 import os
-from models.base_model import Base
+import models
+from models.base_model import BaseModel, Base
 from models.amenity import Amenity
 from models.city import City
 from models.place import Place
@@ -25,6 +25,7 @@ class_name = {
         'User': User
     }
 
+
 class DBStorage:
     """Representing the Storage Database"""
     __engine = None
@@ -36,6 +37,7 @@ class DBStorage:
         passwd = os.getenv('HBNB_MYSQL_PWD')
         host = os.getenv('HBNB_MYSQL_HOST')
         db = os.getenv('HBNB_MYSQL_DB')
+
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
                                       .format(user, passwd, host, db),
                                       pool_pre_ping=True)
@@ -47,25 +49,34 @@ class DBStorage:
         if not self.__session:
             self.reload()
         objs = {}
-        if type(cls) is str:
-            cls = class_name.get(cls, None)
         if cls:
+            if type(cls) == str:
+                cls = class_name.get(cls, None)
             for mem in self.__session.query(cls):
-                key = "{}.{}".format(type(mem).__name__, mem.id)
+                key = mem.__class__.__name__ + '.' + mem.id
                 objs[key] = mem
         else:
-            for cls in class_name.values():
-                for mem in self.__session.query(cls):
-                    key = "{}.{}".format(type(mem).__name__, mem.id)
+            for cname in class_name.values():
+                for mem in self.__session.query(cname):
+                    key = mem.__class__.__name__ + '.' + mem.id
                     objs[key] = mem
         return objs
 
+    def get(self, cls, id):
+        """obtain the object define by cls"""
+        if cls is not None and type(cls) is str and id is not None\
+                and type(id) is str and cls is class_name:
+            cls = class_name[cls]
+            res = self.__session.query(cls).filter(cls.id == id).first()
+        else:
+            return None
+
     def reload(self):
         """Reload objects from the database"""
-        session_factory = sessionmaker(bind=self.__engine,
-                                       expire_on_commit=False)
+        session_kp = sessionmaker(bind=self.__engine,
+                                  expire_on_commit=False)
         Base.metadata.create_all(self.__engine)
-        self.__session = scoped_session(session_factory)
+        self.__session = scoped_session(session_kp)
 
     def new(self, obj):
         """Creating a new object"""
@@ -77,27 +88,16 @@ class DBStorage:
 
     def delete(self, obj=None):
         """Deleting an unwanted member from the table"""
-        if not self.__session:
-            self.reload()
-        if obj:
+        if obj is not None:
             self.__session.delete(obj)
 
     def close(self):
         """Terminate the current session if active"""
-        self.__session.remove()
-
-    def get(self, cls, id):
-        """Retrieving an object"""
-        if cls is not None and type(cls) is str and id is not None\
-            and type(id) is str and cls in class_name:
-                cls = class_name[cls]
-                quest = self.__session.query(cls).filter(cls.id == id).first()
-                return quest
-        else:
-            return None
+        self.reload()
+        self.__session.close()
 
     def count(self, cls=None):
-        """Takes count of objects in the storage"""
+        """obtain count of the objects in the storage"""
         summation = 0
         if type(cls) == str and cls in class_name:
             cls = class_name[cls]
