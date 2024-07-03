@@ -2,7 +2,6 @@
 """ Console Module """
 import cmd
 import sys
-import re
 import os
 import uuid
 from datetime import datetime
@@ -119,58 +118,24 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        attributes_ign = ('id', 'created_at', 'updated_at', '__class__')
-        name_cls = ''
-        char = r'(?P<name>(?:[a-zA-Z]|_)(?:[a-zA-Z]|\d|_)*)'
-        match_up = re.match(char, args)
-        args_kw = {}
-        if match_up is not None:
-            name_cls = match_up.group("name")
-            stripped = args[len(name_cls):].strip()
-            parameters = stripped.split(' ')
-            str_cor = r'(?P<t_str>"([^"]|\")*")'
-            float_cor = r'(?P<t_float>[-+]?\d+\.\d+)'
-            int_cor = r'(?P<t_int>[-+]?\d+)'
-            fmt_para = '{}=({}|{}|{})'.format(char, str_cor, float_cor,
-                                              int_cor)
-            for mem in parameters:
-                mem_link = re.fullmatch(fmt_para, mem)
-                if mem_link is not None:
-                    name_key = mem_link.group("name")
-                    var_str = mem_link.group('t_str')
-                    var_float = mem_link.group('t_float')
-                    var_int = mem_link.group('t_int')
-                    if var_float is not None:
-                        args_kw[name_key] = float(var_float)
-                    if var_int is not None:
-                        args_kw[name_key] = int(var_int)
-                    if var_str is not None:
-                        args_kw[name_key] = var_str[1:-1].replace('_', ' ')
-        else:
-            name_cls = args
-        if not name_cls:
+        try:
+            if not args:
+                raise SyntaxError()
+            obj_list = args.split(" ")
+            args_kw = {}
+            for obj in obj_list[1:]:
+                param = obj.split("=")
+                param[1] = eval(param[1])
+                if type(param[1]) is str:
+                    param[1] = param[1].replace("_", " ").replace('"','\\"')
+                    args_kw[param[0]] = param[1]
+        except SyntaxError:
             print("** class name missing **")
-            return
-        elif name_cls not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-        if os.getenv('HBNB_TYPE_STORAGE') == 'db':
-            if not hasattr(args_kw, 'id'):
-                args_kw['id'] = str(uuid.uuid4())
-            if not hasattr(args_kw, 'created_at'):
-                args_kw['created_at'] = str(datetime.now())
-            if not hasattr(args_kw, 'updated_at'):
-                args_kw['updated_at'] = str(datetime.now())
-            new_instance = HBNBCommand.classes[name_cls](**args_kw)
-            new_instance.save()
-            print(new_instance.id)
-        else:
-            new_instance = HBNBCommand.classes[name_cls]()
-            for key, val in args_kw.items():
-                if key not in attributes_ign:
-                    setattr(new_instance, key, val)
-            new_instance.save()
-            print(new_instance.id)
+        except NameError:
+            print("class doesn't exist **")
+        new_instance = HBNBCommand.classes[obj_list[0]](**args_kw)
+        new_instance.save()
+        print(new_instance.id)
 
     def help_create(self):
         """ Help information for the create method """

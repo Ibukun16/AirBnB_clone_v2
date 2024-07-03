@@ -17,9 +17,6 @@ class State(BaseModel, Base):
         cities = relationship("City", backref="state",
                               cascade="all, delete, delete-orphan")
 
-    def __init__(self, *args, **kwargs):
-        """initializing the state"""
-        super().__init__(*args, **kwargs)
 
     if getenv("HBNB_TYPE_STORAGE") != 'db':
         @property

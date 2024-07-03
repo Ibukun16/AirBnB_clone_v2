@@ -13,7 +13,3 @@ class Amenity(BaseModel):
                                        back_populates="amenities")
     else:
         name = ""
-
-    def __init__(self, *args, **kwargs):
-        """Inherited init"""
-        super.__init__(*args, **kwargs)

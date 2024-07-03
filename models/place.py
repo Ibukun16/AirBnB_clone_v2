@@ -38,10 +38,6 @@ class Place(BaseModel, Base):
                                  viewonly=False,
                                  back_populates="place_amenities")
     
-    def __init__(self, *args, **kwargs):
-        """Initializing Place"""
-        super().__init__(*args, **kwargs)
-
     if getenv("HBNB_TYPE_STORAGE") != "db":
         @property
         def reviews(self):
