@@ -157,9 +157,9 @@ class HBNBCommand(cmd.Cmd):
         if os.getenv('HBNB_TYPE_STORAGE') == 'db':
             if not hasattr(args_kw, 'id'):
                 args_kw['id'] = str(uuid.uuid4())
-            if not hasattr(item_kw, 'created_at'):
+            if not hasattr(args_kw, 'created_at'):
                 args_kw['created_at'] = str(datetime.now())
-            if not hasattr(item_kw, 'updated_at'):
+            if not hasattr(args_kw, 'updated_at'):
                 args_kw['updated_at'] = str(datetime.now())
             new_instance = HBNBCommand.classes[name_cls](**args_kw)
             new_instance.save()
