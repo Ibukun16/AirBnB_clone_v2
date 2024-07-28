@@ -32,6 +32,10 @@ class User(BaseModel, Base):
         first_name = ""
         last_name = ""
 
+    def __init__(self, *args, **kwargs):
+        """initializes Amenity"""
+        super().__init__(*args, **kwargs)
+
     @property
     def password(self):
         return self.password
