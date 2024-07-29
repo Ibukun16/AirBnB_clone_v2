@@ -3,8 +3,9 @@
 import models
 import sqlalchemy
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, String, ForeignKey, Integer, MetaData
+from sqlalchemy.orm import relationship, backref
+import models
 from models.city import City
 from os import getenv
 
@@ -33,5 +34,5 @@ class State(BaseModel, Base):
             city = []
             for val in city_val:
                 if val.state_id == self.id:
-                    city.append(c)
+                    city.append(val)
             return city

@@ -42,7 +42,7 @@ class DBStorage:
                                       .format(user, passwd, host, db),
                                       pool_pre_ping=True)
         if os.getenv('HBNB_ENV') == 'test':
-            Base.metadata.drop_all(self.__engine)
+            Base.metadata.drop_all(bind=self.__engine)
 
     def all(self, cls=None):
         """returns a dictionary of all the objects present"""
@@ -76,11 +76,13 @@ class DBStorage:
         Base.metadata.create_all(self.__engine)
         maker = sessionmaker(bind=self.__engine,
                              expire_on_commit=False)
-        self.__session = scoped_session(maker)
+        Session = scoped_session(maker)
+        self.__session = Session()
 
     def new(self, obj):
         """Creating a new object"""
-        self.__session.add(obj)
+        if obj:
+            self.__session.add(obj)
 
     def save(self):
         """saving the current session"""
@@ -94,7 +96,7 @@ class DBStorage:
     def close(self):
         """Terminate the current session if active"""
         self.reload()
-        self.__session.close()
+        self.__session.remove()
 
     def count(self, cls=None):
         """obtain count of the objects in the storage"""
