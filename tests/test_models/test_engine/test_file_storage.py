@@ -5,7 +5,8 @@ from models.base_model import BaseModel
 from models import storage
 import os
 
-
+@unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') == 'db',
+                 'fileStorage test not supported')
 class test_fileStorage(unittest.TestCase):
     """ Class to test the file storage method """
 
@@ -16,6 +17,13 @@ class test_fileStorage(unittest.TestCase):
             del_list.append(key)
         for key in del_list:
             del storage._FileStorage__objects[key]
+
+     def tearDown(self):
+        """ Remove storage file at end of tests """
+        try:
+            os.remove('file.json')
+        except Exception:
+            pass
 
     def test_obj_list_empty(self):
         """ __objects is initially empty """

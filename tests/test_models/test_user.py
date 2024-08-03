@@ -5,30 +5,38 @@ from models.user import User
 
 
 class test_User(test_basemodel):
-    """ """
+    """ unittest for user model """
 
     def __init__(self, *args, **kwargs):
-        """ """
+        """ initializing state class"""
         super().__init__(*args, **kwargs)
         self.name = "User"
         self.value = User
 
     def test_first_name(self):
-        """ """
+        """ testing for firstname"""
         new = self.value()
-        self.assertEqual(type(new.first_name), str)
+        self.assertEqual(type(new.first_name), str if
+                         os.getenv('HBNB_TYPE_STORAGE') != 'db' else
+                         type(None))
 
     def test_last_name(self):
-        """ """
+        """ test for user last name """
         new = self.value()
-        self.assertEqual(type(new.last_name), str)
+        self.assertEqual(type(new.last_name), str if
+                         os.getenv('HBNB_TYPE_STORAGE') != 'db' else
+                         type(None))
 
     def test_email(self):
-        """ """
+        """ test for user email """
         new = self.value()
-        self.assertEqual(type(new.email), str)
+        self.assertEqual(type(new.email), str if
+                         os.getenv('HBNB_TYPE_STORAGE') != 'db' else
+                         type(None))
 
     def test_password(self):
-        """ """
+        """ test for user password """
         new = self.value()
-        self.assertEqual(type(new.password), str)
+        self.assertEqual(type(new.password), str if
+                         os.getenv('HBNB_TYPE_STORAGE') != 'db' else
+                         type(None))
