@@ -55,7 +55,7 @@ class DBStorage:
                 objs[key] = mem
         else:
             for cls in class_name.values():
-                for mem in self.__session.query(cname):
+                for mem in self.__session.query(cls):
                     key = mem.__class__.__name__ + '.' + mem.id
                     objs[key] = mem
         return objs
@@ -71,11 +71,10 @@ class DBStorage:
 
     def reload(self):
         """Reload objects from the database"""
+        sessmaker = sessionmaker(bind=self.__engine,
+                                 expire_on_commit=False)
         Base.metadata.create_all(self.__engine)
-        maker = sessionmaker(bind=self.__engine,
-                             expire_on_commit=False)
-        Session = scoped_session(maker)
-        self.__session = Session()
+        self.__session = scoped_session(sessmaker)
 
     def new(self, obj):
         """Creating a new object"""

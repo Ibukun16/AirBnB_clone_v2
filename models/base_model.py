@@ -21,11 +21,9 @@ class BaseModel:
     classes will be derived
     """
     if getenv("HBNB_TYPE_STORAGE") == "db":
-        id = Column(String(60), unique=True,  nullable=False, primary_key=True)
-        created_at = Column(DateTime, nullable=False,
-                            default=datetime.utcnow())
-        updated_at = Column(DateTime, nullable=False,
-                            default=datetime.utcnow())
+        id = Column(String(60), nullable=False, primary_key=True)
+        created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
+        updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
 
     def __init__(self, *args, **kwargs):
         """Instatiates a new model"""
@@ -42,7 +40,7 @@ class BaseModel:
     def __str__(self):
         """Returns a string representation of the instance"""
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
-        return '[{}] ({}) {}'.format(cls, self.id, self.__dict__)
+        return '[{:s}] ({:s}) {}'.format(cls, self.id, self.__dict__)
 
     def __repr__(self):
         """return a string representation"""
