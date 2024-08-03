@@ -148,7 +148,7 @@ class HBNBCommand(cmd.Cmd):
                     if value_str is not None:
                         dictionary[key] = value_str[1:-1].replace("_", " ")
         else:
-            cls_name =args
+            cls_name = args
         if not cls_name:
             print("** class name missing **")
             return
