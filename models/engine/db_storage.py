@@ -13,7 +13,6 @@ from models.state import State
 from models.user import User
 from models.review import Review
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 class_name = {
@@ -37,7 +36,6 @@ class DBStorage:
         passwd = os.getenv('HBNB_MYSQL_PWD')
         host = os.getenv('HBNB_MYSQL_HOST')
         db = os.getenv('HBNB_MYSQL_DB')
-
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
                                       .format(user, passwd, host, db),
                                       pool_pre_ping=True)
@@ -49,14 +47,14 @@ class DBStorage:
         if not self.__session:
             self.reload()
         objs = {}
+        if type(cls) == str:
+            cls = class_name.get(cls, None)
         if cls:
-            if type(cls) == str:
-                cls = class_name.get(cls, None)
             for mem in self.__session.query(cls):
                 key = mem.__class__.__name__ + '.' + mem.id
                 objs[key] = mem
         else:
-            for cname in class_name.values():
+            for cls in class_name.values():
                 for mem in self.__session.query(cname):
                     key = mem.__class__.__name__ + '.' + mem.id
                     objs[key] = mem
@@ -90,6 +88,8 @@ class DBStorage:
 
     def delete(self, obj=None):
         """Deleting an unwanted member from the table"""
+        if not self.__session:
+            self.reload()
         if obj is not None:
             self.__session.delete(obj)
 
@@ -101,7 +101,7 @@ class DBStorage:
     def count(self, cls=None):
         """obtain count of the objects in the storage"""
         summation = 0
-        if type(cls) == str and cls in class_name:
+        if cls and type(cls) == str and cls in class_name:
             cls = class_name[cls]
             summation = self.__session.query(cls).count()
         elif cls is None:

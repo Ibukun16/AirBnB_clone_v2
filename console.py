@@ -1,18 +1,20 @@
 #!/usr/bin/python3
-""" Console Module """
+""" Console Module for AirBnB """
 import cmd
 import sys
 import os
+import re
 import uuid
 from datetime import datetime
 from models.base_model import BaseModel
-from models.__init__ import storage
+from models import storage
 from models.user import User
 from models.place import Place
 from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+from shlex import split
 
 
 class HBNBCommand(cmd.Cmd):
@@ -32,6 +34,26 @@ class HBNBCommand(cmd.Cmd):
              'max_guest': int, 'price_by_night': int,
              'latitude': float, 'longitude': float
             }
+
+    def emptyline(self):
+        """ The method that Overrides emptyline of CMD """
+        pass
+
+    def do_quit(self, command):
+        """ The Method to exit the HBNB console"""
+        exit()
+
+    def help_quit(self):
+        """ Prints the help documentation for quit """
+        print("Exits the program with formatting\n")
+
+    def do_EOF(self, arg):
+        """ The method that actuate EOF to exit program """
+        exit()
+
+    def help_EOF(self):
+        """ Prints the help documentation for EOF """
+        print("Exits the program without formatting\n")
 
     def preloop(self):
         """Prints if isatty is false"""
@@ -95,47 +117,61 @@ class HBNBCommand(cmd.Cmd):
             print('(hbnb) ', end='')
         return stop
 
-    def do_quit(self, command):
-        """ Method to exit the HBNB console"""
-        exit(0)
-
-    def help_quit(self):
-        """ Prints the help documentation for quit  """
-        print("Exits the program with formatting\n")
-
-    def do_EOF(self, arg):
-        """ Handles EOF to exit program """
-        print()
-        exit(0)
-
-    def help_EOF(self):
-        """ Prints the help documentation for EOF """
-        print("Exits the program without formatting\n")
-
-    def emptyline(self):
-        """ Overrides the emptyline method of CMD """
-        pass
-
     def do_create(self, args):
-        """ Create an object of any class"""
-        try:
-            if not args:
-                raise SyntaxError()
-            obj_list = args.split(" ")
-            args_kw = {}
-            for obj in obj_list[1:]:
-                param = obj.split("=")
-                param[1] = eval(param[1])
-                if type(param[1]) is str:
-                    param[1] = param[1].replace("_", " ").replace('"','\\"')
-                    args_kw[param[0]] = param[1]
-        except SyntaxError:
+        """ Create an object of any class """
+        if not args:
+            raise SyntaxError()
+        attr_ign = ('id', 'created_at', 'updated_at', '__class__')
+        cls_name = ''
+        pat_name = r'(?P<name>(?:[a-zA-Z]|_)(?:[a-zA-Z]|\d|_)*)'
+        match_cls = re.match(pat_name, args)
+        dictionary = {}
+        if match_cls is not None:
+            cls_name = match_cls.group('name')
+            args_str = args[len(cls_name):].strip()
+            param = args_str.split(" ")
+            fmt_str = r'(?P<t_str>"([^"]|\")*")'
+            fmt_float = r'(?P<t_float>[-+]?\d+\.\d+)'
+            fmt_int = r'(?P<t_int>[-+]?\d+)'
+            fmt_param = f"{pat_name}=({fmt_str}|{fmt_float}|{fmt_int})"
+            for item in param:
+                param_match = re.fullmatch(fmt_param, item)
+                if param_match is not None:
+                    key = param_match.group('name')
+                    value_str = param_match.group('t_str')
+                    value_float = param_match.group('t_float')
+                    value_int = param_match.group('t_int')
+                    if value_float is not None:
+                        dictionary[key] = float(value_float)
+                    if value_int is not None:
+                        dictionary[key] = int(value_int)
+                    if value_str is not None:
+                        dictionary[key] = value_str[1:-1].replace("_", " ")
+        else:
+            cls_name =args
+        if not cls_name:
             print("** class name missing **")
-        except NameError:
-            print("class doesn't exist **")
-        new_instance = HBNBCommand.classes[obj_list[0]](**args_kw)
-        new_instance.save()
-        print(new_instance.id)
+            return
+        elif cls_name not in HBNBCommand.classes:
+            print("** class doesn't exit **")
+            return
+        if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+            if not hasattr(dictionary, 'id'):
+                dictionary['id'] = str(uuid.uuid4())
+            if not hasattr(dictionary, 'created_at'):
+                dictionary['created_at'] = str(datetime.now())
+            if not hasattr(dictionary, 'updated_at'):
+                dictionary['updated_at'] = str(datetime.now())
+            new_instance = HBNBCommand.classes[class_name](**dictionary)
+            print(new_instance.id)
+            new_instance.save()
+        else:
+            new_instance = HBNBCommand.classes[cls_name]()
+            for key, value in dictionary.items():
+                if key not in attr_ign:
+                    setattr(new_instance, key, value)
+            print(new_instance.id)
+            new_instance.save()
 
     def help_create(self):
         """ Help information for the create method """
