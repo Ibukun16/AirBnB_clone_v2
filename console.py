@@ -162,7 +162,7 @@ class HBNBCommand(cmd.Cmd):
                 dictionary['created_at'] = str(datetime.now())
             if not hasattr(dictionary, 'updated_at'):
                 dictionary['updated_at'] = str(datetime.now())
-            new_instance = HBNBCommand.classes[class_name](**dictionary)
+            new_instance = HBNBCommand.classes[cls_name](**dictionary)
             print(new_instance.id)
             new_instance.save()
         else:
