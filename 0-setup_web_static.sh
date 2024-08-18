@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Bash Script to Setup web server for Airbnb Static_web 
-sudo apt-get update -y
-sudo apt-get updgrade -y
-sudo apt-get install -y nginx
+# A bash Script that Setup web server for Airbnb Static_web 
+apt-get update -y
+apt-get install -y nginx
 
 mkdir -p /data/web_static/releases/test/
 mkdir /data/web_static/shared/
@@ -30,4 +29,4 @@ printf %s "server {
       internal;
     }
 }" > /etc/nginx/sites-available/default
-sudo service nginx restart 
+service nginx restart 
