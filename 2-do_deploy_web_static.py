@@ -44,11 +44,11 @@ def do_deploy(archive_path):
             .format(timestamp))
 
         # uncompress archive and delete .tgz
-        run(f"sudo tar -xzf /tmp/web_static_{timestamp}.tgz -C \
-    /data/web_static/releases/web_static_{timestamp}/")
+        run("sudo tar -xzf /tmp/web_static_{}.tgz -C \
+/data/web_static/releases/web_static_{}/".format(timestamp, timestamp))
 
         # remove archive
-        run(f'sudo rm /tmp/web_static_{timestamp}.tgz')
+        run('sudo rm /tmp/web_static_{}.tgz'.format(timestamp))
 
         # move contents into host web_static
         run('sudo mv /data/web_static/releases/web_static_{}/web_static/* \
@@ -62,8 +62,8 @@ def do_deploy(archive_path):
         run('sudo rm -rf /data/web_static/current')
 
         # re-establish symbolic link
-        run(f'sudo ln -s /data/web_static/releases/web_static_{timestamp}/ \
-                /data/web_static/current')
+        run('sudo ln -s /data/web_static/releases/web_static_{}/ \
+/data/web_static/current'.format(timestamp))
     except Exception:
         return False
 
