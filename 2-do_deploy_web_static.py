@@ -5,7 +5,8 @@ Fabric script that distributes an archive to web servers
 
 from datetime import datetime
 from fabric.api import *
-import os
+from os import path
+
 
 env.hosts = ["34.227.94.180", "100.25.167.156"]
 env.user = "ubuntu"
@@ -13,11 +14,12 @@ env.key_filename = '~/.ssh/school'
 
 
 def do_deploy(archive_path):
-    """
-       Deploy web files to server.
-    """
-    # upload archive
-    if os.path.exists(archive_path):
+    """Deploy web files to server."""
+    try:
+        if not (path.exists(archive_path)):
+            return False
+
+        # upload archive
         put(archive_path, '/tmp/')
 
         # create target dir
@@ -30,7 +32,7 @@ def do_deploy(archive_path):
 /data/web_static/releases/web_static_{timestamp}/")
 
         # remove archive
-        run('sudo rm /tmp/web_static_{}.tgz'.format(timestamp))
+        run(f'sudo rm /tmp/web_static_{timestamp}.tgz')
 
         # move contents into host web_static
         run('sudo mv /data/web_static/releases/web_static_{}/web_static/* \
@@ -44,10 +46,10 @@ def do_deploy(archive_path):
         run('sudo rm -rf /data/web_static/current')
 
         # re-establish symbolic link
-        run('sudo ln -s /data/web_static/releases/\
-            web_static_{}/ /data/web_static/current'.format(timestamp))
+        run(f'sudo ln -s /data/web_static/releases/\
+            web_static_{timestamp}/ /data/web_static/current')
+    except Exception:
+        return False
 
-        print("New version deployed!")
-        return True
-
-    return False
+    print("New version deployed!")
+    return True
