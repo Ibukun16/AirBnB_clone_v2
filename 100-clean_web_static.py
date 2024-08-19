@@ -14,10 +14,6 @@ def do_clean(number=0):
     number is 2, keeps the most and second-most recent archives,
     etc.
     """
-    def do_clean(number=0):
-    """
-    clean arch
-    """
     try:
         number = int(number)
     except Exception:
@@ -41,5 +37,4 @@ def do_clean(number=0):
         for a in archives_list:
             if (a != ''):
                 local("rm versions/" + a)
-                run('rm -rf /data/web_static/releases/\
-                    ' + a.split('.')[0])
+                run('rm -rf /data/web_static/releases/' + a.split('.')[0])
