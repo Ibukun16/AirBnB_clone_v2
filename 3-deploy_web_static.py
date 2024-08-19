@@ -12,14 +12,13 @@ env.hosts = ['34.227.94.180', '100.25.167.156']
 env.user = "ubuntu"
 env.key_filename = "~/.ssh/school"
 
-
 def do_pack():
     """generate a tgz archive using fabric"""
 
     date = datetime.now().strftime("%Y%m%d%H%M%S")
     file_name = "versions/web_static_{}.tgz".format(date)
     if os.path.isdir("versions") is False:
-        local("mkdir versions")
+        local("mkdir -p versions")
     print("Packing web_static to {}".format(file_name))
     local("tar -cvzf " + file_name + " web_static")
     size = os.stat(file_name).st_size
@@ -35,8 +34,7 @@ def do_deploy(archive_path):
     if os.path.exists(archive_path) is False:
         return False
     arch_name = archive_path.split("/")[1]
-    mk_path = arch_name.split(".")[0]
-    arch_path = "/data/web_static/releases/" + mk_path
+    arch_path = "/data/web_static/releases/" + arch_name.split(".")[0]
     put(archive_path, '/tmp/')
     run("mkdir -p " + arch_path)
     run("tar -xzf /tmp/{} -C {}/".format(arch_name, arch_path))
