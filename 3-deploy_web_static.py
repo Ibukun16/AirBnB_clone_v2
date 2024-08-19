@@ -9,8 +9,7 @@ from datetime import datetime
 import os
 
 env.hosts = ['34.227.94.180', '100.25.167.156']
-env.user = "ubuntu"
-env.key_filename = "~/.ssh/school"
+
 
 def do_pack():
     """generate a tgz archive using fabric"""
@@ -59,4 +58,7 @@ def deploy():
     archive_path = do_pack()
     if archive_path is None:
         return False
-    return do_deploy(archive_path)
+    deploy = do_deploy(archive_path)
+    if (deploy is False):
+        return False
+    return deploy
