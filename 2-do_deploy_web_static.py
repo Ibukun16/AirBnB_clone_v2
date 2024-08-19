@@ -5,7 +5,7 @@ Fabric script that distributes an archive to web servers
 
 from datetime import datetime
 from fabric.api import *
-from os
+import os
 
 
 env.hosts = ["34.227.94.180", "100.25.167.156"]
@@ -13,42 +13,40 @@ env.user = "ubuntu"
 env.key_filename = '~/.ssh/school'
 
 
-def do_pack():
-    """
-        return the archive path if archive has generated correctly.
-    """
-
-    local("mkdir -p versions")
-    date = datetime.now().strftime("%Y%m%d%H%M%S")
-    archived_f_path = "versions/web_static_{}.tgz".format(date)
-    t_gzip_archive = local("tar -cvzf {} web_static".format(archived_f_path))
-
-    if t_gzip_archive.succeeded:
-        return archived_f_path
-    else:
-        return None
-
-
 def do_deploy(archive_path):
     """
-        Distribute archive.
+        Deploy archive files to the web server.
     """
-    if os.path.exists(archive_path):
-        archived_file = archive_path[9:]
-        newest_version = "/data/web_static/releases/" + archived_file[:-4]
-        archived_file = "/tmp/" + archived_file
-        put(archive_path, "/tmp/")
-        run("sudo mkdir -p {}".format(newest_version))
-        run("sudo tar -xzf {} -C {}/".format(archived_file,
-                                             newest_version))
-        run("sudo rm {}".format(archived_file))
-        run("sudo mv {}/web_static/* {}".format(newest_version,
-                                                newest_version))
-        run("sudo rm -rf {}/web_static".format(newest_version))
-        run("sudo rm -rf /data/web_static/current")
-        run("sudo ln -s {} /data/web_static/current".format(newest_version))
+    if os.path.exists(archive_path) is False:
+        return False
 
-        print("New version deployed!")
-        return True
+    arch_file = archive_path.split("/")[1]
+    new_file = "/data/web_static/releases/" + arch_file.split(".")[0]
+    arch_tmp = "/tmp/" + arch_file
 
-    return False
+    # upload archive
+    put(archive_path, "/tmp/")
+
+    # create target dir
+    run("sudo mkdir -p " + new_file + "/")
+
+    # uncompress archive into newfile without .tgz extension
+    run("sudo tar -xzf /tmp/{} -C {}/".format(arch_file, new_file))
+
+    # remove archive
+    run("sudo rm " + arch_tmp)
+
+    # move contents into host web_static
+    run("sudo mv " + new_file + "/web_static/* " + new_file + "/")
+
+    # remove extraneous web_static dir
+    run("sudo rm -rf " + new_file + "/web_static")
+
+    # delete pre-existing sym link
+    run("sudo rm -rf /data/web_static/current")
+
+    # re-establish symbolic link
+    run("sudo ln -s " + new_file + " /data/web_static/current")
+
+    print("New version deployed!")
+    return True
