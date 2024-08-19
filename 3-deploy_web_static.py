@@ -32,16 +32,16 @@ def do_deploy(archive_path):
     """distributes an archive to the web servers"""
     if os.path.exists(archive_path) is False:
         return False
-    arch_name = archive_path.split("/")[1]
-    arch_path = "/data/web_static/releases/" + arch_name.split(".")[0]
+    arch_file = archive_path.split("/")[1]
+    arch_path = "/data/web_static/releases/" + arch_file.split(".")[0]
     put(archive_path, '/tmp/')
-    run("mkdir -p " + arch_path)
-    run("tar -xzf /tmp/{} -C {}/".format(arch_name, arch_path))
-    run("rm /tmp/" + arch_name)
-    run("mv " + arch_path + "/web_static/* " + arch_path + "/")
-    run("rm -rf " + arch_path + "/web_static")
-    run("rm -rf /data/web_static/current")
-    run("ln -s " + arch_path + " /data/web_static/current")
+    run("sudo mkdir -p " + arch_path)
+    run("sudo tar -xzf /tmp/{} -C {}/".format(arch_file, arch_path))
+    run("sudo rm /tmp/" + arch_file)
+    run("sudo mv " + arch_path + "/web_static/* " + arch_path + "/")
+    run("sudo rm -rf " + arch_path + "/web_static")
+    run("sudo rm -rf /data/web_static/current")
+    run("sudo ln -s " + arch_path + " /data/web_static/current")
     print("New version deployed!")
     return True
 
