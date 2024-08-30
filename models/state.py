@@ -18,9 +18,6 @@ class State(BaseModel, Base):
         cities = relationship("City", backref="state",
                               cascade="all, delete, delete-orphan")
 
-    else:
-        name = ""
-
     def __init__(self, *args, **kwargs):
         """initializing state"""
         super().__init__(*args, **kwargs)
@@ -30,9 +27,9 @@ class State(BaseModel, Base):
         def cities(self):
             """Getter function that obtains attribute that returns
             the instance City"""
-            city_val = models.storage.all("City").values()
+            all_cities = models.storage.all("City")
             city = []
-            for val in city_val:
+            for val in all_cities.values():
                 if val.state_id == self.id:
                     city.append(val)
             return city

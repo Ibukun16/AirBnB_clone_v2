@@ -15,15 +15,14 @@ def states_list():
     """Return an html page with states and cities"""
     states = storage.all(State)
     # sort State object by name in alphabetical order
-    sort_states = sorted(states.values(), key=lambda state: state.name)
-    return render_template('states_list.html', sort_states=sort_states)
+    return render_template('7-states_list.html', states=states)
 
 
 @app.teardown_appcontext
-def close(self):
-    """Closing and cleaning up session current SQLAlchemy Session"""
+def teardown(self):
+    """Closing and cleaning up current SQLAlchemy Session"""
     storage.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
