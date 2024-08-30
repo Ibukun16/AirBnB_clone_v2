@@ -95,7 +95,7 @@ class DBStorage:
     def close(self):
         """Terminate the current session if active"""
         self.reload()
-        self.__session.remove()
+        self.__session.close()
 
     def count(self, cls=None):
         """obtain count of the objects in the storage"""
